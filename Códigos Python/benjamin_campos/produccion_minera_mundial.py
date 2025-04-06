@@ -1,44 +1,60 @@
 import pandas as pd
-import plotly.graph_objects as go
-import matplotlib.colors as mcolors
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+from matplotlib.animation import FuncAnimation
+from matplotlib.colors import Normalize
 
-df = pd.read_csv("Produccion_mundial_cobre.csv", sep=";", decimal=",", skiprows=0, encoding='utf-8')
+data = pd.read_csv('Produccion_mundial_cobre.csv', sep=';', decimal='.')
+data = data[data.iloc[:, 0] != 'TOTAL']
 
-df = df.dropna()
-df = df[~df.iloc[:, 0].str.contains("TOTAL|;;;;;;", regex=True)]
+for col in data.columns[1:]:
+    try:
+        data[col] = pd.to_numeric(data[col], errors='coerce')
+    except:
+        pass
 
-df = df.rename(columns={df.columns[0]: "País"})
+paises = data.iloc[:, 0].tolist()
+años = [int(col) for col in data.columns[1:] if col.isdigit()]
 
-for col in df.columns[1:]:
-    df[col] = df[col].str.replace(".", "", regex=False).str.replace(",", ".", regex=False).astype(float)
+fig, ax = plt.subplots(figsize=(15, 10))
 
-year = "2023"
+norm = Normalize(vmin=0, vmax=len(paises))
+colors = cm.viridis(norm(np.arange(len(paises))))  
 
-top_paises = df.nlargest(10, year)
+def update(frame):
+    ax.clear()
+    año = años[frame]
+    
+    año_data = data.iloc[:, [0, frame + 1]].copy()
+    año_data.columns = ['País', 'Producción']
+    año_data = año_data.sort_values('Producción', ascending=False).reset_index(drop=True)
+    
+    top_producers = año_data[año_data['Producción'] > 50].copy()
+    
+    x_pos = np.arange(len(top_producers))
+    tamaño_burbujas = top_producers['Producción'] * 2
+    
+    for i, (_, row) in enumerate(top_producers.iterrows()):
+        país = row['País']
+        producción = row['Producción']
+        idx = paises.index(país) if país in paises else 0
+        
+        ax.scatter(i, producción, s=tamaño_burbujas[i], color=colors[idx], alpha=0.7, edgecolors='black')
 
-source = list(range(10))
-target = [10] * 10   
-labels = top_paises["País"].tolist() + [f"Producción {year}"]
-values = top_paises[year].tolist()
+        ax.text(producción + 50, i, f"{país}: {producción:.1f} kt", va='center')
+    
+    ax.set_ylim(0, top_producers['Producción'].max() * 1.3)
+    ax.set_xlim(-1, len(top_producers))
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(top_producers['País'], rotation=45, ha='right')
+    ax.set_ylabel('Producción de Cobre (kt)', fontsize=14)
+    ax.set_title(f'Producción Mundial de Cobre - {año}', fontsize=18)
+    ax.grid(axis='y', linestyle='--', alpha=0.7)
+    
+    return ax
 
-
-colores = list(mcolors.TABLEAU_COLORS.values())[:10] 
-
-fig = go.Figure(data=[go.Sankey(
-    node=dict(
-        pad=15,
-        thickness=20,
-        line=dict(color="black", width=2),
-        label=labels,
-        color="lightgray",
-    ),
-    link=dict(
-        source=source,
-        target=target,
-        value=values,
-        color=colores
-    )
-)])
-
-fig.update_layout(title_text=f"Producción minera a nivel mundial en {year}", font_size=12)
-fig.show()
+ani = FuncAnimation(fig, update, frames=len(años), interval=1000, blit=False)
+ani.save('produccion_mundial_cobre.gif', writer='pillow', fps=1, dpi=100)
+plt.tight_layout()
+plt.show()
