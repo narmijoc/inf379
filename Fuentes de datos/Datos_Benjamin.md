@@ -12,4 +12,4 @@ Los datos recopilados corresponden al Índice de Producción Minera (IPMin), que
 
 ### Origen y descripción de los datos
 
-Los datos se obtuvieron de la tabla 75 del documento ["Anuario de Estadísticas del Cobre y Otros Minerales 2004-2023"](https://www.cochilco.cl/web/anuario-de-estadisticas-del-cobre-y-otros-minerales/), documento elaborado por la comisión chilena del cobre. Estos datos corresponden a "Miles de TM en cobre fino / kMT Copper Content" (Cuántas toneladas de cobre fino se obtienen por cada mil toneladas métricas de cobre contenido en el mineral procesado). Cabe destacar que se tomó solo en cuenta el año 2023 para la realización de la gráfica.
+Los datos se obtuvieron de la tabla 75 del documento ["Anuario de Estadísticas del Cobre y Otros Minerales 2004-2023"](https://www.cochilco.cl/web/anuario-de-estadisticas-del-cobre-y-otros-minerales/), documento elaborado por la comisión chilena del cobre. Estos datos corresponden a "Miles de TM en cobre fino / kMT Copper Content" (Cuántas toneladas de cobre fino se obtienen por cada mil toneladas métricas de cobre contenido en el mineral procesado).
